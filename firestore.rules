@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasUserDoc() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return hasUserDoc() && userDoc().role == 'admin';
+    }
+
+    function isStaff() {
+      return hasUserDoc() && userDoc().role == 'staff';
+    }
+
+    function staffCanteenId() {
+      return userDoc().canteenId;
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+
+      // First Google sign-in creates a student profile only
+      allow create: if isSignedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'student'
+        && request.resource.data.canteenId == null;
+
+      // Admin can change roles/canteens, but cannot demote themselves
+      allow update: if isAdmin()
+        && !(request.auth.uid == uid && request.resource.data.role != 'admin');
+
+      allow delete: if false;
+    }
+
+    match /canteens/{canteenId} {
+      allow read: if isSignedIn();
+      allow update: if isAdmin() || (isStaff() && staffCanteenId() == canteenId);
+      allow create, delete: if isAdmin();
+    }
+
+    match /menuItems/{itemId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin()
+        || (isStaff() && request.resource.data.canteenId == staffCanteenId());
+      allow update: if isAdmin()
+        || (isStaff()
+            && resource.data.canteenId == staffCanteenId()
+            && request.resource.data.canteenId == staffCanteenId());
+      allow delete: if isAdmin()
+        || (isStaff() && resource.data.canteenId == staffCanteenId());
+    }
+
+    match /crowdLogs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin()
+        || (isStaff()
+            && request.resource.data.canteenId == staffCanteenId()
+            && request.resource.data.level in ['low', 'medium', 'high']
+            && request.resource.data.score in [1, 2, 3]);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

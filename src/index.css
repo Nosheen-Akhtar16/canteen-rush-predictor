@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --crowd-low-bg: #dcfce7;
+  --crowd-low-text: #166534;
+  --crowd-low-border: #86efac;
+
+  --crowd-medium-bg: #fef3c7;
+  --crowd-medium-text: #92400e;
+  --crowd-medium-border: #fcd34d;
+
+  --crowd-high-bg: #fee2e2;
+  --crowd-high-text: #991b1b;
+  --crowd-high-border: #fca5a5;
+}
+
+.dark {
+  --crowd-low-bg: rgba(22, 101, 52, 0.35);
+  --crowd-low-text: #86efac;
+  --crowd-low-border: #166534;
+
+  --crowd-medium-bg: rgba(146, 64, 14, 0.35);
+  --crowd-medium-text: #fcd34d;
+  --crowd-medium-border: #92400e;
+
+  --crowd-high-bg: rgba(153, 27, 27, 0.35);
+  --crowd-high-text: #fca5a5;
+  --crowd-high-border: #991b1b;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}

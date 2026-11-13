@@ -1,0 +1,30 @@
+{
+  "name": "canteen-rush-predictor",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "seed": "node scripts/seed.js",
+    "seed:reset": "node scripts/seed.js --reset"
+  },
+  "dependencies": {
+    "firebase": "^11.4.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.3.0",
+    "recharts": "^2.15.1"
+  },
+  "devDependencies": {
+    "@rollup/wasm-node": "^4.68.3",
+    "@tailwindcss/vite": "^4.0.9",
+    "@vitejs/plugin-react": "^4.3.4",
+    "firebase-admin": "^13.1.0",
+    "rollup": "npm:@rollup/wasm-node@^4.68.3",
+    "tailwindcss": "^4.0.9",
+    "vite": "^6.2.0"
+  },
+  "overrides": {}
+}
