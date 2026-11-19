@@ -28,6 +28,13 @@ const BAR_COLORS = {
   none: "#94a3b8",
 };
 
+function maskEmail(email) {
+  if (!email || email.endsWith("@demo.com")) return email || "—";
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  return `${local.slice(0, 2)}***@${domain}`;
+}
+
 export default function AdminDashboard() {
   const { user: currentUser } = useAuth();
   const { canteens } = useCanteens();
@@ -260,14 +267,15 @@ export default function AdminDashboard() {
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {users.map((u) => {
               const isSelf = u.uid === currentUser?.uid;
+              const safeEmail = maskEmail(u.email);
               return (
                 <tr key={u.uid}>
                   <td className="py-3 pr-4 font-medium">
-                    {u.email} {isSelf && <span className="text-xs text-slate-400">(You)</span>}
+                    {safeEmail} {isSelf && <span className="text-xs text-slate-400">(You)</span>}
                   </td>
                   <td className="py-3 pr-4">
                     <select
-                      aria-label={`Role for ${u.email}`}
+                      aria-label={`Role for ${safeEmail}`}
                       disabled={isSelf}
                       value={u.role || "student"}
                       onChange={(e) =>
@@ -283,7 +291,7 @@ export default function AdminDashboard() {
                   <td className="py-3">
                     {u.role === "staff" ? (
                       <select
-                        aria-label={`Canteen for ${u.email}`}
+                        aria-label={`Canteen for ${safeEmail}`}
                         value={u.canteenId || "main"}
                         onChange={(e) =>
                           updateUserRole(u.uid, "staff", e.target.value)

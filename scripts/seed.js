@@ -130,21 +130,42 @@ function pickHistoricalLevel(canteenId, hour, step) {
     base = canteenId === "main" && step === 1 ? "high" : "medium";
   } else if (canteenId === "main" && (hour === 10 || hour === 17) && step === 0) {
     base = "medium";
+  } else if (hour === 9 && canteenId === "main" && step === 0) {
+    base = "medium";
   }
   return base;
 }
 
+async function clearOldCrowdLogs() {
+  const existing = await db.collection("crowdLogs").get();
+  if (existing.empty) return;
+  for (let i = 0; i < existing.docs.length; i += 450) {
+    const batch = db.batch();
+    for (const doc of existing.docs.slice(i, i + 450)) {
+      batch.delete(doc.ref);
+    }
+    await batch.commit();
+  }
+}
+
 async function seedHistoryAndUsual() {
+  await clearOldCrowdLogs();
+
   const logsByCanteen = { main: [], engineering: [], library: [] };
   const allOps = [];
-  const nowMs = Date.now();
+
+  // Anchor strictly to 00:00 IST today so hours 8..18 never shift regardless of run time
+  const istShiftMs = 5.5 * 3600000;
+  const istToday = new Date(Date.now() + istShiftMs);
+  istToday.setUTCHours(0, 0, 0, 0);
+  const istMidnightMs = istToday.getTime() - istShiftMs;
 
   for (let dayOffset = 1; dayOffset <= 21; dayOffset++) {
     for (const c of CANTEENS) {
       for (let hour = 8; hour <= 18; hour++) {
         const count = (dayOffset + hour) % 2 === 0 ? 3 : 2;
         for (let s = 0; s < count; s++) {
-          const tsMs = nowMs - dayOffset * 86400000 - (18 - hour) * 3600000 - s * 600000;
+          const tsMs = istMidnightMs - dayOffset * 86400000 + hour * 3600000 + s * 600000;
           const { weekday, hour: istHour } = istParts(new Date(tsMs));
           const level = pickHistoricalLevel(c.id, istHour, s);
           const logDoc = {
@@ -177,7 +198,7 @@ async function seedHistoryAndUsual() {
     usualBatch.update(db.collection("canteens").doc(c.id), { usual });
   }
   await usualBatch.commit();
-  console.log(`Seeded ${allOps.length} crowdLogs and saved usual rush maps.`);
+  console.log(`Seeded ${allOps.length} crowdLogs (8 AM - 6 PM, all 7 days) and saved usual rush maps.`);
 }
 
 async function main() {
