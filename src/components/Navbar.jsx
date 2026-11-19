@@ -50,7 +50,7 @@ export default function Navbar() {
             className="flex items-center gap-1.5 sm:gap-2 font-bold text-sm sm:text-lg text-slate-900 dark:text-white whitespace-nowrap shrink-0"
           >
             <span className="inline-flex h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-emerald-500" />
-            <span>Canteen Rush</span>
+            <span>Canteen Crowd & Stock Tracker</span>
           </Link>
 
           <nav

@@ -56,7 +56,7 @@ export default function Login() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Canteen Rush Predictor
+            Canteen Crowd & Stock Tracker
           </h1>
           <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
             Live campus crowd levels, item stock &amp; peak hour forecasts.
